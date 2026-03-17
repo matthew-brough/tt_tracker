@@ -1,0 +1,29 @@
+# Secrets
+.env
+infra/cloudflared/creds.json
+
+# Go
+bin/
+*.exe
+*.test
+*.out
+
+# Go workspace
+go.work.sum
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node / frontend build
+frontend/node_modules/
+frontend/dist/
+
+# Docker volumes (if bind-mounted locally)
+data/
