@@ -1,0 +1,9 @@
+credentials-file: /etc/cloudflared/credentials.json
+
+ingress:
+  - hostname: mapping.iwanttospyonyourpigsxp.win
+    path: /api/*
+    service: http://api:8080
+  - hostname: mapping.iwanttospyonyourpigsxp.win
+    service: http://frontend:3000
+  - service: http_status:404
