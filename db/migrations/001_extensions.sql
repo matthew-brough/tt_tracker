@@ -1,0 +1,4 @@
+-- +goose NO TRANSACTION
+-- +goose Up
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+CREATE EXTENSION IF NOT EXISTS postgis;
