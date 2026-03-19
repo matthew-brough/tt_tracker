@@ -72,16 +72,25 @@ func Hexbin(ctx context.Context, pool *pgxpool.Pool, p HexbinParams) ([]models.H
 	where := strings.Join(conditions, " AND ")
 	edgeIdx := argIdx
 
+	// World bounds derived from the frontend maxBounds pixel coords at zoom 8:
+	//   SW: map.unproject(L.point(-10000, 75000), 8)
+	//   NE: map.unproject(L.point( 75000, -20000), 8)
+	// Using CRS: lng = (px/256 - 123.58) / 0.014228, lat = (py/256 - 150) / -0.014238
+	const (
+		worldMinX = -11432
+		worldMaxX = 11906
+		worldMinY = -10043
+		worldMaxY = 16023
+	)
+
 	// H3-style multi-resolution with full tiling.
 	// 1. Aggregate points at fine resolution (single table scan).
 	// 2. Roll up fine→medium→coarse counts.
 	// 3. Drill down: coarse cells with enough data → fill ENTIRELY with medium hexes.
 	// 4. Medium cells with enough data → fill ENTIRELY with fine hexes.
 	// 5. Empty child cells (count=0) are included for seamless coverage.
-	const (
-		coarseDrillThreshold = 5  // coarse hex drills to medium when count >= this
-		fineDrillThreshold   = 10 // medium hex drills to fine when count >= this
-	)
+	// Drill thresholds are computed from the data (P75) so they adapt to density over time.
+	// Cells whose centroid lies outside the game world bounds are culled at output.
 
 	query := fmt.Sprintf(`
 		WITH pts AS MATERIALIZED (
@@ -112,12 +121,21 @@ func Hexbin(ctx context.Context, pool *pgxpool.Pool, p HexbinParams) ([]models.H
 			     LATERAL ST_HexagonGrid($%[2]d::float8 * 16, ST_Centroid(ma.geom)) hex
 			GROUP BY hex.i, hex.j, hex.geom
 		),
+		-- Adaptive thresholds: top 25%% of cells drill down (P75 of their level's counts)
+		coarse_thresh AS (
+			SELECT GREATEST(1, (PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY cnt))::int) AS val
+			FROM coarse_agg
+		),
+		medium_thresh AS (
+			SELECT GREATEST(1, (PERCENTILE_CONT(0.75) WITHIN GROUP (ORDER BY cnt))::int) AS val
+			FROM medium_agg
+		),
 		-- Drill: coarse → fill ALL medium hexes inside qualifying coarse cells
 		medium_fill AS (
 			SELECT hex.i, hex.j, hex.geom
-			FROM coarse_agg ca,
+			FROM coarse_agg ca, coarse_thresh ct,
 			     LATERAL ST_HexagonGrid($%[2]d::float8 * 4, ca.geom) hex
-			WHERE ca.cnt >= %[3]d
+			WHERE ca.cnt >= ct.val
 			GROUP BY hex.i, hex.j, hex.geom
 		),
 		medium_filled AS (
@@ -129,9 +147,9 @@ func Hexbin(ctx context.Context, pool *pgxpool.Pool, p HexbinParams) ([]models.H
 		-- Drill: medium → fill ALL fine hexes inside qualifying medium cells
 		fine_fill AS (
 			SELECT hex.i, hex.j, hex.geom
-			FROM medium_filled mfl,
+			FROM medium_filled mfl, medium_thresh mt,
 			     LATERAL ST_HexagonGrid($%[2]d::float8, mfl.geom) hex
-			WHERE mfl.cnt >= %[4]d
+			WHERE mfl.cnt >= mt.val
 			GROUP BY hex.i, hex.j, hex.geom
 		),
 		fine_filled AS (
@@ -144,19 +162,25 @@ func Hexbin(ctx context.Context, pool *pgxpool.Pool, p HexbinParams) ([]models.H
 		SELECT ST_X(ST_Centroid(geom)) AS x, ST_Y(ST_Centroid(geom)) AS y,
 		       cnt AS count, $%[2]d::float8 AS edge
 		FROM fine_filled
+		WHERE ST_X(ST_Centroid(geom)) BETWEEN %[3]d AND %[4]d
+		  AND ST_Y(ST_Centroid(geom)) BETWEEN %[5]d AND %[6]d
 		UNION ALL
 		-- Medium hexes (from drilled coarse cells, not further drilled)
 		SELECT ST_X(ST_Centroid(geom)) AS x, ST_Y(ST_Centroid(geom)) AS y,
 		       cnt AS count, $%[2]d::float8 * 4 AS edge
-		FROM medium_filled
-		WHERE cnt < %[4]d
+		FROM medium_filled, medium_thresh mt
+		WHERE cnt < mt.val
+		  AND ST_X(ST_Centroid(geom)) BETWEEN %[3]d AND %[4]d
+		  AND ST_Y(ST_Centroid(geom)) BETWEEN %[5]d AND %[6]d
 		UNION ALL
 		-- Coarse hexes (not drilled)
 		SELECT ST_X(ST_Centroid(geom)) AS x, ST_Y(ST_Centroid(geom)) AS y,
 		       cnt AS count, $%[2]d::float8 * 16 AS edge
-		FROM coarse_agg
-		WHERE cnt < %[3]d
-	`, where, edgeIdx, coarseDrillThreshold, fineDrillThreshold)
+		FROM coarse_agg, coarse_thresh ct
+		WHERE cnt < ct.val
+		  AND ST_X(ST_Centroid(geom)) BETWEEN %[3]d AND %[4]d
+		  AND ST_Y(ST_Centroid(geom)) BETWEEN %[5]d AND %[6]d
+	`, where, edgeIdx, worldMinX, worldMaxX, worldMinY, worldMaxY)
 	args = append(args, p.EdgeSize)
 
 	rows, err := pool.Query(ctx, query, args...)

@@ -1,8 +1,8 @@
 export const PLAYER_POLL_MS = 10000;
 export const DEFAULT_SERVER = "main";
-export const TARGET_HEX_SPAN = 20;
-export const MIN_EDGE = 15;
-export const MAX_EDGE = 500;
+export const TARGET_HEX_SPAN = 50;
+export const MIN_EDGE = 5;
+export const MAX_EDGE = 100;
 
 export const TRAIL_OPTIONS = {
   weight: 2,

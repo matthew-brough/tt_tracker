@@ -28,7 +28,7 @@ async function pollHeatmap() {
     const state = getControlState();
     const bounds = getGameBounds(map);
     const span = Math.max(bounds.maxX - bounds.minX, bounds.maxY - bounds.minY);
-    const edge = Math.min(MAX_EDGE, Math.max(MIN_EDGE, Math.round(span / TARGET_HEX_SPAN)));
+    const edge = Math.min(MAX_EDGE, Math.max(MIN_EDGE, Math.round(span / TARGET_HEX_SPAN * 0.75)));
     const bins = await fetchHeatmap({
       server: state.server,
       job: state.job || undefined,
