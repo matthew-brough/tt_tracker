@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsup --watch",
+    "build": "tsup"
+  },
+  "dependencies": {
+    "leaflet": "^1.9"
+  },
+  "devDependencies": {
+    "@types/leaflet": "^1.9",
+    "tsup": "^8",
+    "typescript": "^5.7"
+  }
+}
