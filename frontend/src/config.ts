@@ -1,5 +1,4 @@
-export const PLAYER_POLL_MS = 3000;
-export const HEATMAP_POLL_MS = 30000;
+export const PLAYER_POLL_MS = 10000;
 export const DEFAULT_SERVER = "main";
 export const TARGET_HEX_SPAN = 20;
 export const MIN_EDGE = 15;
