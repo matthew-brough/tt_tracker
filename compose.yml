@@ -90,6 +90,8 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+    volumes:
+      - ./frontend/tiles:/app/tiles:ro
     depends_on:
       - api
     restart: unless-stopped

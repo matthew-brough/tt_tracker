@@ -14,6 +14,5 @@ RUN npm install -g serve
 WORKDIR /app
 COPY --from=build /app/dist/ ./dist/
 COPY index.html ./
-COPY tiles/ ./tiles/
 EXPOSE 3000
 CMD ["serve", ".", "-l", "3000"]
