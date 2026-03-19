@@ -1,0 +1,28 @@
+services:
+  db:
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+
+  redis:
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+
+  api:
+    ports:
+      - "${API_PORT:-8080}:8080"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      target: build
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/tiles:/app/tiles
+    command: sh -c "npm run build && cp node_modules/leaflet/dist/leaflet.css dist/ && cp -r node_modules/leaflet/dist/images dist/ && serve . -l 3000"
+    ports:
+      - "3000:3000"
+
+  cloudflared:
+    restart: on-failure:5
