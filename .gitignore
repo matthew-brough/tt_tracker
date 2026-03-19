@@ -27,3 +27,5 @@ frontend/dist/
 
 # Docker volumes (if bind-mounted locally)
 data/
+
+*.webp
