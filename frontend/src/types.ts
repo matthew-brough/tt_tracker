@@ -35,3 +35,8 @@ export interface HeatmapParams {
   maxX: number;
   maxY: number;
 }
+
+export interface FilterOption {
+  value: string;
+  count: number;
+}

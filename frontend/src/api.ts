@@ -1,4 +1,4 @@
-import type { PlayerState, HexBin, HeatmapParams } from "./types";
+import type { PlayerState, HexBin, HeatmapParams, FilterOption } from "./types";
 
 export async function fetchPlayers(server: string): Promise<PlayerState[]> {
   const res = await fetch(`/api/players?server=${encodeURIComponent(server)}`);
@@ -27,5 +27,20 @@ export async function fetchHeatmap(params: HeatmapParams): Promise<HexBin[]> {
   }
   const res = await fetch(url.toString());
   if (!res.ok) throw new Error(`heatmap: ${res.status}`);
+  return (await res.json()) ?? [];
+}
+
+export async function fetchFilterOptions(
+  server: string,
+  type: "job" | "vehicle",
+  search: string
+): Promise<FilterOption[]> {
+  const url = new URL("/api/filter-options", location.origin);
+  url.searchParams.set("server", server);
+  url.searchParams.set("type", type);
+  if (search) url.searchParams.set("search", search);
+  url.searchParams.set("limit", "20");
+  const res = await fetch(url.toString());
+  if (!res.ok) throw new Error(`filter-options: ${res.status}`);
   return (await res.json()) ?? [];
 }

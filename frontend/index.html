@@ -35,6 +35,40 @@
       width: 100%;
       margin-top: 2px;
     }
+    .search-dropdown { position: relative; width: 100%; margin-top: 2px; }
+    .search-dropdown input {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      color: #e0e0e0;
+      padding: 3px 6px;
+      font-size: 12px;
+      width: 100%;
+    }
+    .search-dropdown .dd-list {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0; right: 0;
+      max-height: 180px;
+      overflow-y: auto;
+      background: rgba(20, 20, 40, 0.97);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-top: none;
+      border-radius: 0 0 4px 4px;
+      z-index: 1001;
+    }
+    .search-dropdown.open .dd-list { display: block; }
+    .dd-list .dd-item {
+      padding: 4px 6px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+    }
+    .dd-list .dd-item:hover { background: rgba(255, 255, 255, 0.1); }
+    .dd-list .dd-item .dd-count { color: #707090; font-size: 11px; }
+    .dd-list .dd-empty { padding: 4px 6px; font-size: 11px; color: #707090; }
     .section { margin-top: 10px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.08); }
     .section-title { font-size: 11px; text-transform: uppercase; color: #707090; letter-spacing: 0.5px; margin-bottom: 4px; }
 
@@ -83,8 +117,18 @@
           <option value="7d">7 days</option>
         </select>
       </label>
-      <label>Job <input type="text" id="filter-job" placeholder="e.g. police" /></label>
-      <label>Vehicle <input type="text" id="filter-vehicle" placeholder="e.g. car" /></label>
+      <div>Job
+        <div class="search-dropdown" id="dd-job">
+          <input type="text" placeholder="search jobs..." />
+          <div class="dd-list"></div>
+        </div>
+      </div>
+      <div>Vehicle
+        <div class="search-dropdown" id="dd-vehicle">
+          <input type="text" placeholder="search vehicles..." />
+          <div class="dd-list"></div>
+        </div>
+      </div>
     </div>
   </div>
 

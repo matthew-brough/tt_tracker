@@ -56,6 +56,7 @@ func main() {
 
 	mux.Handle("GET /api/players", &handlers.PlayersHandler{Redis: redisClient})
 	mux.Handle("GET /api/heatmap", &handlers.HeatmapHandler{Pool: pool, Redis: redisClient})
+	mux.Handle("GET /api/filter-options", &handlers.FiltersHandler{Pool: pool})
 	mux.HandleFunc("GET /api/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("ok"))
