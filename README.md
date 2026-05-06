@@ -13,7 +13,7 @@ Real-time player position tracker and heatmap visualizer for [Transport Tycoon](
 ## Architecture
 
 ```
-FiveM API ──▸ Collector ──▸ TimescaleDB (historical, 7d retention)
+FiveM API ──▸ Collector ──▸ TimescaleDB (historical, 0d retention)
                   │
                   └───────▸ Redis (live state, trails, geo index)
                                 │
@@ -64,7 +64,7 @@ FiveM API ──▸ Collector ──▸ TimescaleDB (historical, 7d retention)
 ## Prerequisites
 
 - Docker & Docker Compose
-- A [TycoonRP API key](https://tycoon.community/) (used by the collector to poll the FiveM API)
+- A [Transport Tycoon API key](https://tycoon.community/) (used by the collector to poll the FiveM API)
 - Cloudflare Tunnel credentials (`creds.json`) for production deployment
 
 ## Setup
@@ -107,7 +107,7 @@ make migrate  # run migrations
 
 | Variable | Description | Default |
 |---|---|---|
-| `TYCOON_API_KEY` | TycoonRP API authentication key | — |
+| `TYCOON_API_KEY` | Transport Tycoon API authentication key | — |
 | `TYCOON_SERVERS` | Comma-separated `id:name` pairs | `2epova:main,njyvop:beta` |
 | `POLL_INTERVAL_MS` | Player position poll interval | `2000` |
 | `FLUSH_INTERVAL_MS` | TimescaleDB batch write interval | `5000` |
