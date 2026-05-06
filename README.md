@@ -1,12 +1,12 @@
 # tt-tracker
 
-Real-time player position tracker and heatmap visualizer for [Transport Tycoon](https://tycoon.community/) FiveM servers. Polls the TycoonRP API for player locations, stores historical data in TimescaleDB, and renders live positions and density heatmaps on an interactive Leaflet map.
+Real-time player position tracker and heatmap visualizer for [Transport Tycoon](https://tycoon.community/) FiveM servers. Polls the Transport Tycoon API for player locations, stores historical data in TimescaleDB, and renders live positions and density heatmaps on an interactive Leaflet map.
 
 ## Features
 
 - **Live player tracking** — polls player positions every 10s, displays markers with job-colored 60-point trails on the game map
 - **Historical heatmaps** — multi-resolution hexagonal binning (ST_HexagonalGrid) with configurable time ranges (1h / 6h / 24h / 7d)
-- **Multi-server support** — tracks multiple TycoonRP servers simultaneously (`main`, `beta`)
+- **Multi-server support** — tracks multiple Transport Tycoon servers simultaneously (`main`, `beta`)
 - **Filtering** — filter players by job group (police, fire, EMS, mechanic, taxi) and vehicle type
 - **Automatic data lifecycle** — 7-day retention policy with TimescaleDB compression
 
@@ -74,7 +74,7 @@ FiveM API ──▸ Collector ──▸ TimescaleDB (historical, 0d retention)
    ```bash
    cp .env.example .env
    # Fill in required values:
-   #   TYCOON_API_KEY    — your TycoonRP API key
+   #   TYCOON_API_KEY    — your Transport Tycoon API key
    #   POSTGRES_USER     — database username
    #   POSTGRES_PASSWORD — database password
    #   CF_TUNNEL_ID      — Cloudflare tunnel ID
