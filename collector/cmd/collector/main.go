@@ -34,16 +34,16 @@ func main() {
 	}
 	flushInterval := time.Duration(flushIntervalMs) * time.Millisecond
 
-	// Parse server configs: "2epova:main,njyvop:beta"
+	// Parse server configs: "main:https://api.tycoon.community,beta:https://apibeta.tycoon.community"
 	serversStr := os.Getenv("TYCOON_SERVERS")
 	if serversStr == "" {
-		serversStr = "2epova:main,njyvop:beta"
+		serversStr = "main:https://api.tycoon.community,beta:https://apibeta.tycoon.community"
 	}
 	var servers []poller.ServerConfig
 	for _, s := range strings.Split(serversStr, ",") {
 		parts := strings.SplitN(strings.TrimSpace(s), ":", 2)
 		if len(parts) != 2 {
-			log.Fatalf("invalid server config: %q (expected id:label)", s)
+			log.Fatalf("invalid server config: %q (expected label:baseURL)", s)
 		}
 		servers = append(servers, poller.NewServerConfig(parts[0], parts[1]))
 	}
@@ -97,7 +97,7 @@ func main() {
 			ticker := time.NewTicker(pollInterval)
 			defer ticker.Stop()
 
-			log.Printf("[%s] polling every %v (primary: %s)", srv.ProxyLabel, pollInterval, srv.PrimaryURL)
+			log.Printf("[%s] polling every %v (primary: %s)", srv.Label, pollInterval, srv.PrimaryURL)
 			for {
 				select {
 				case <-ctx.Done():
@@ -105,11 +105,11 @@ func main() {
 				case <-ticker.C:
 					players, err := p.Poll(ctx)
 					if err != nil {
-						log.Printf("[%s] poll error: %v", srv.ProxyLabel, err)
+						log.Printf("[%s] poll error: %v", srv.Label, err)
 						continue
 					}
-					w.HandlePollResult(ctx, srv.ProxyLabel, players)
-					log.Printf("[%s] polled %d players", srv.ProxyLabel, len(players))
+					w.HandlePollResult(ctx, srv.Label, players)
+					log.Printf("[%s] polled %d players", srv.Label, len(players))
 				}
 			}
 		}()

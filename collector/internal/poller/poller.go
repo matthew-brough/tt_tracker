@@ -13,18 +13,16 @@ import (
 )
 
 type ServerConfig struct {
-	ID         string // e.g. "2epova"
-	ProxyLabel string // e.g. "main"
+	Label      string // e.g. "main", "beta"
 	PrimaryURL string
 	BackupURL  string
 }
 
-func NewServerConfig(id, proxyLabel string) ServerConfig {
+func NewServerConfig(label, baseURL string) ServerConfig {
 	return ServerConfig{
-		ID:         id,
-		ProxyLabel: proxyLabel,
-		PrimaryURL: fmt.Sprintf("https://tycoon-%s.users.cfx.re/status/map/positions2.json", id),
-		BackupURL:  fmt.Sprintf("https://tt-proxy.thisisaproxy.workers.dev/%s/status/map/positions2.json", proxyLabel),
+		Label:      label,
+		PrimaryURL: baseURL + "/map/positions2.json",
+		BackupURL:  fmt.Sprintf("https://tt-proxy.thisisaproxy.workers.dev/%s/status/map/positions2.json", label),
 	}
 }
 
@@ -45,10 +43,10 @@ func New(config ServerConfig, apiKey string) *Poller {
 func (p *Poller) Poll(ctx context.Context) ([]models.Player, error) {
 	data, err := p.fetchWithTimeout(ctx, p.config.PrimaryURL, 5*time.Second)
 	if err != nil {
-		log.Printf("[%s] primary fetch failed: %v, trying backup", p.config.ID, err)
+		log.Printf("[%s] primary fetch failed: %v, trying backup", p.config.Label, err)
 		data, err = p.fetchWithTimeout(ctx, p.config.BackupURL, 5*time.Second)
 		if err != nil {
-			return nil, fmt.Errorf("both URLs failed for %s: %w", p.config.ID, err)
+			return nil, fmt.Errorf("both URLs failed for %s: %w", p.config.Label, err)
 		}
 	}
 
@@ -61,7 +59,7 @@ func (p *Poller) Poll(ctx context.Context) ([]models.Player, error) {
 	for _, raw := range resp.Players {
 		player, err := models.ParsePlayer(raw)
 		if err != nil {
-			log.Printf("[%s] skip player: %v", p.config.ID, err)
+			log.Printf("[%s] skip player: %v", p.config.Label, err)
 			continue
 		}
 		players = append(players, *player)
