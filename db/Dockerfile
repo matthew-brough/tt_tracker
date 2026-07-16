@@ -1,6 +1,6 @@
-FROM timescale/timescaledb:latest-pg17
+FROM timescale/timescaledb:2.28.3-pg18
 
-RUN apk add --no-cache postgis \
-    && cp /usr/lib/postgresql17/postgis*.so /usr/local/lib/postgresql/ \
-    && cp /usr/share/postgresql17/extension/postgis* /usr/local/share/postgresql/extension/ \
-    && cp /usr/share/postgresql17/extension/address_standardizer* /usr/local/share/postgresql/extension/ 2>/dev/null; true
+RUN apk add --no-cache postgis=3.6.1-r0 \
+    && cp /usr/lib/postgresql18/postgis*.so /usr/local/lib/postgresql/ \
+    && cp /usr/share/postgresql18/extension/postgis* /usr/local/share/postgresql/extension/ \
+    && cp /usr/share/postgresql18/extension/address_standardizer* /usr/local/share/postgresql/extension/

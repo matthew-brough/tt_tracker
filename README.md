@@ -28,7 +28,7 @@ FiveM API ──▸ Collector ──▸ TimescaleDB (historical, 0d retention)
 | **collector** | Go service that polls FiveM API endpoints, dual-writes to Redis (immediate) and TimescaleDB (batched) |
 | **api** | Go REST API serving `/api/players` (live from Redis) and `/api/heatmap` (hexbin aggregation from TimescaleDB with Redis caching) |
 | **frontend** | TypeScript SPA with Leaflet `CRS.Simple` map, tsup-bundled |
-| **db** | PostgreSQL 17 + TimescaleDB + PostGIS |
+| **db** | PostgreSQL 18 + TimescaleDB + PostGIS |
 | **redis** | Ephemeral cache (256MB, allkeys-lru, no persistence) |
 | **cloudflared** | Cloudflare Tunnel for path-based routing (`/api/*` → api, `/` → frontend) |
 
